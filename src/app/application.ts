@@ -172,6 +172,7 @@ export namespace Application {
         return new Promise(function(resolve, reject) {
             glob( process.cwd() + path.sep + program.includes + '/**/*', {
                 dot: false,
+                nodir: true,
                 cwd: __dirname
             }, function(err, files) {
                 let i = 0,
@@ -181,19 +182,10 @@ export namespace Application {
                 let loop = function() {
                     if (i < len) {
                         f = files[i];
-                        basename = path.basename(f);
-                        console.log(f);
-                        if( i === 0) {
-                            $configuration.mainData.additionalpages.pages.push({
-                                name: 'Index'
-                            });
-                            $configuration.addPage({
-                                path: defaultAdditionalEntryPath,
-                                name: 'index',
-                                context: 'additionalpages',
-                                page: 'toto'
-                            });
-                        } else {
+                        console.log('f: ', f);
+                        let _filename = path.basename(f, path.extname(f));
+                        basename = _filename.charAt(0).toUpperCase() + _filename.slice(1);
+                        $markdownengine.getFile(f).then((data) => {
                             $configuration.mainData.additionalpages.pages.push({
                                 name: basename
                             });
@@ -201,13 +193,14 @@ export namespace Application {
                                 path: defaultAdditionalEntryPath,
                                 name: basename,
                                 context: 'additionalpage',
-                                page: 'toto'
+                                page: data
                             });
-                        }
-                        i++
-                        loop();
+                            i++
+                            loop();
+                        }, (err) => {
+                            logger.error(err);
+                        })
                     } else {
-                        console.log($configuration);
                         resolve();
                     }
                 };
@@ -414,6 +407,7 @@ export namespace Application {
 
     let processResources = () => {
         logger.info('Copy main resources');
+        console.log($configuration);
         fs.copy(path.resolve(__dirname + '/../src/resources/'), path.resolve(process.cwd() + path.sep + defaultFolder), function (err) {
             if(err) {
                 logger.error('Error during resources copy ', err);

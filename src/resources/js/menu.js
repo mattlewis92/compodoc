@@ -3,8 +3,8 @@ document.addEventListener('DOMContentLoaded', function() {
         el.addEventListener('click', function() {
             var href = this.getAttribute('href'),
                 link = './' + href.substr(1) + '.html';
-            if (href === '#gettingStarted') link = './'
-            if (href === '#additional-doc') link = './additional-documentation/'
+            if (href === '#gettingStarted') link = './';
+            if (href === '#additional-doc') link = document.querySelector('#additional-doc a').getAttribute('href');
             window.location.href = link;
         })
     })

@@ -26,4 +26,15 @@ export class MarkdownEngine {
             });
         });
     }
+    getFile(file) {
+        return new Promise(function(resolve, reject) {
+            fs.readFile(path.resolve(file), 'utf8', (err, data) => {
+                if (err) {
+                    reject(`Error during {path} file reading`);
+                } else {
+                    resolve(marked(data));
+                }
+            });
+        });
+    }
 };
