@@ -42,8 +42,14 @@
     <div class="panel panel-default">
         <div class="panel-heading">
             <h4 class="panel-title">
-                <a data-toggle="collapse" data-parent="#accordion" href="#additional-doc"><span class="fa fa-book">
-                </span>{{ additionalpages.entryName }}</a>
+                <a data-toggle="collapse" data-parent="#accordion" href="#additional-doc">
+                    <table>
+                        <tr>
+                            <td><span class="fa fa-book"></span></td>
+                            <td><span class="name">{{ additionalpages.entryName }}</span></td>
+                        </tr>
+                    </table>
+                </a>
             </h4>
         </div>
         <div id="additional-doc" class="panel-collapse collapse
@@ -227,7 +233,7 @@
 
     <p class="copyright">
 		{{#unless hideGenerator}}
-            Documentation generated using <a href="https://compodoc.github.io/compodoc/" target="_blank"><img src="./images/compodoc-vectorise.svg" class="img-responsive"></a>
+            Documentation<br/>generated using <a href="https://compodoc.github.io/compodoc/" target="_blank"><img src="./images/compodoc-vectorise.svg" class="img-responsive"></a>
 		{{/unless}}
     </p>
 

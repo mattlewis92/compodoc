@@ -58,12 +58,15 @@ body {
 .glyphicon, .fa {
   margin-right: 10px;
 }
-.fa-code-fork {
+.fa {
+    width: 15px;
+}
+/*.fa-code-fork {
   margin-right: 14px;
 }
 .fa-long-arrow-down {
   margin-right: 16px;
-}
+}*/
 .panel-body {
   padding: 0px;
 }
