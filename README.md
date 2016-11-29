@@ -90,6 +90,7 @@ Options:
   -t, --silent              In silent mode, log messages aren't logged in the console
   -s, --serve               Serve generated documentation (default http://localhost:8080/)
   -g, --hideGenerator       Do not print the Compodoc link at the bottom of the page
+  -w, --watch               Watch source files during serve force quick documentation rebuild
 ```
 
 ### Local installation

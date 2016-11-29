@@ -5,7 +5,8 @@ import * as LiveServer from 'live-server';
 import * as Shelljs from 'shelljs';
 import marked from 'marked';
 
-const glob: any = require('glob');
+const glob: any = require('glob'),
+      chokidar = require('chokidar');
 
 import { logger } from '../logger';
 import { HtmlEngine } from './engines/html.engine';
@@ -48,6 +49,7 @@ export namespace Application {
         .option('-t, --silent', 'In silent mode, log messages aren\'t logged in the console', false)
         .option('-s, --serve', 'Serve generated documentation (default http://localhost:8080/)', false)
         .option('-g, --hideGenerator', 'Do not print the Compodoc link at the bottom of the page', false)
+        .option('-w, --watch', 'Watch source files during serve force quick documentation rebuild', false)
         .parse(process.argv);
 
     let outputHelp = () => {
@@ -462,6 +464,10 @@ export namespace Application {
                         logger.info(`Serving documentation from ${defaultFolder} at http://127.0.0.1:8080`);
                         runWebServer(defaultFolder);
                     }
+                    if (program.watch) {
+                        logger.info(`Watching sources...`);
+                        runWatch();
+                    }
                 }
             };
         let finalMainGraphPath = defaultFolder;
@@ -473,6 +479,14 @@ export namespace Application {
             loop();
         }, (err) => {
             logger.error('Error during graph generation: ', err);
+        });
+    }
+
+    let runWatch = () => {
+        chokidar.watch('.', {
+            ignored: [/[\/\\]\./, 'node_modules/**', '.git/**/*', defaultFolder + '**/*']
+        }).on('all', (event, path) => {
+            //console.log(event, path);
         });
     }
 
