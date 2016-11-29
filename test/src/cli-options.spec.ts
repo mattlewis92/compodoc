@@ -71,6 +71,11 @@ describe('CLI Options', () => {
             expect(runHelp.stdout.toString()).to.contain('Do not print the Compodoc link at the bottom of the page');
         });
 
+        it(`-w`, () => {
+            expect(runHelp.stdout.toString()).to.contain('-w, --watch');
+            expect(runHelp.stdout.toString()).to.contain('Watch source files during serve force quick documentation rebuild');
+        });
+
 
     });
 

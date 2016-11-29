@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as LiveServer from 'live-server';
 import * as Shelljs from 'shelljs';
 import marked from 'marked';
+import * as _ from 'lodash';
 
 const glob: any = require('glob'),
       chokidar = require('chokidar');
@@ -16,10 +17,12 @@ import { Configuration } from './configuration';
 import { DependenciesEngine } from './engines/dependencies.engine';
 import { NgdEngine } from './engines/ngd.engine';
 import { Dependencies } from './compiler/dependencies';
+import { findMainSourceFolder } from '../utilities';
 
 let pkg = require('../package.json'),
     program = require('commander'),
     files = [],
+    _tsconfigfile,
     cwd = process.cwd(),
     $htmlengine = new HtmlEngine(),
     $fileengine = new FileEngine(),
@@ -27,6 +30,7 @@ let pkg = require('../package.json'),
     $markdownengine = new MarkdownEngine(),
     $ngdengine = new NgdEngine(),
     $dependenciesEngine,
+    serveServerStarted = false,
     startTime = new Date();
 
 export namespace Application {
@@ -463,10 +467,9 @@ export namespace Application {
                     if (program.serve) {
                         logger.info(`Serving documentation from ${defaultFolder} at http://127.0.0.1:8080`);
                         runWebServer(defaultFolder);
-                    }
-                    if (program.watch) {
-                        logger.info(`Watching sources...`);
-                        runWatch();
+                        if (program.watch) {
+                            runWatch();
+                        }
                     }
                 }
             };
@@ -483,26 +486,77 @@ export namespace Application {
     }
 
     let runWatch = () => {
-        chokidar.watch('.', {
-            ignored: [/[\/\\]\./, 'node_modules/**', '.git/**/*', defaultFolder + '**/*']
-        }).on('all', (event, path) => {
-            //console.log(event, path);
-        });
+        let srcFolder = findMainSourceFolder(files);
+        logger.info(`Watching sources in detected folder ${srcFolder} ...`);
+        let watcher = chokidar.watch(srcFolder),
+            timerRef,
+            waiter = () => {
+                clearTimeout(timerRef);
+                timerRef = setTimeout(runner, 1000);
+            },
+            runner = () => {
+                scanFiles();// don't scan if just changes
+                getDependenciesData();
+            };
+        watcher
+            .on('ready', () => {
+                watcher
+                    .on('add', (file) => {
+                        logger.info(`File ${file} has been added`);
+                        waiter();
+                    })
+                    .on('change', (file) => {
+                        logger.info(`File ${file} has been changed`);
+                        waiter();
+                    })
+                    .on('unlink', (file) => {
+                        //logger.info(`File ${file} has been removed`);
+                        //waiter();
+                    });
+            });
     }
 
     let runWebServer = (folder) => {
-        LiveServer.start({
-            root: folder,
-            open: false,
-            quiet: true,
-            logLevel: 0
-        });
+        if (!serveServerStarted) {
+            serveServerStarted = true;
+            LiveServer.start({
+                root: folder,
+                open: false,
+                quiet: true,
+                logLevel: 0
+            });
+        }
+    }
+
+    let scanFiles = () => {
+        let exclude = require(_tsconfigfile).exclude || [];
+
+        var walk = (dir) => {
+            let results = [];
+            let list = fs.readdirSync(dir);
+            list.forEach((file) => {
+                if (exclude.indexOf(file) < 0 && dir.indexOf('node_modules') < 0) {
+                    file = path.join(dir, file);
+                    let stat = fs.statSync(file);
+                    if (stat && stat.isDirectory()) {
+                        results = results.concat(walk(file));
+                    }
+                    else if (/(spec|\.d)\.ts/.test(file)) {
+                        logger.debug('Ignoring', file);
+                    }
+                    else if (path.extname(file) === '.ts') {
+                        logger.debug('Including', file);
+                        results.push(file);
+                    }
+                }
+            });
+            return results;
+        };
+
+        files = walk(cwd || '.');
     }
 
     export let run = () => {
-
-        let _file;
-
         if (program.serve && !program.tsconfig && program.output) {
             // if -s & -d, serve it
             if (!fs.existsSync(program.output)) {
@@ -531,43 +585,19 @@ export namespace Application {
                     logger.fatal('"tsconfig.json" file was not found in the current directory');
                     process.exit(1);
                 } else {
-                    _file = path.join(
+                    _tsconfigfile = path.join(
                       path.join(process.cwd(), path.dirname(program.tsconfig)),
                       path.basename(program.tsconfig)
                     );
-                    logger.info('Using tsconfig', _file);
+                    logger.info('Using tsconfig', _tsconfigfile);
 
-                    files = require(_file).files;
+                    files = require(_tsconfigfile).files;
 
                     // use the current directory of tsconfig.json as a working directory
-                    cwd = _file.split(path.sep).slice(0, -1).join(path.sep);
+                    cwd = _tsconfigfile.split(path.sep).slice(0, -1).join(path.sep);
 
                     if (!files) {
-                        let exclude = require(_file).exclude || [];
-
-                        var walk = (dir) => {
-                            let results = [];
-                            let list = fs.readdirSync(dir);
-                            list.forEach((file) => {
-                                if (exclude.indexOf(file) < 0 && dir.indexOf('node_modules') < 0) {
-                                    file = path.join(dir, file);
-                                    let stat = fs.statSync(file);
-                                    if (stat && stat.isDirectory()) {
-                                        results = results.concat(walk(file));
-                                    }
-                                    else if (/(spec|\.d)\.ts/.test(file)) {
-                                        logger.debug('Ignoring', file);
-                                    }
-                                    else if (path.extname(file) === '.ts') {
-                                        logger.debug('Including', file);
-                                        results.push(file);
-                                    }
-                                }
-                            });
-                            return results;
-                        };
-
-                        files = walk(cwd || '.');
+                        scanFiles();
                     }
 
                     $htmlengine.init().then(() => {
