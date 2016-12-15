@@ -2,6 +2,9 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as Handlebars from 'handlebars';
 //import * as helpers from 'handlebars-helpers';
+import { Configuration } from '../configuration';
+
+const $configuration = Configuration.getInstance();
 
 export class HtmlEngine {
     cache: object = {};

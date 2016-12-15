@@ -23,6 +23,28 @@ export function getNewLineCharacter(options: ts.CompilerOptions): string {
     return carriageReturnLineFeed;
 }
 
+export function depth(filePath: string): number {
+    const filterDot = (s) => s !== '.',
+        filterEmpty = (s) => s.length > 0,
+        reduceToLevel = (acc, s) => s === '..' ? acc - 1 : acc + 1;
+
+    return filePath === '' ? 0 : path.normalize(filePath).split(path.sep).filter(filterDot).filter(filterEmpty).reduce(reduceToLevel, 0);
+}
+
+export function rootWithDepth(depth: number): string {
+    let ret = '';
+    if (depth === 1) {
+        ret = './';
+    } else if (depth > 1) {
+        let i = 0,
+            len = depth;
+        for (i; i<len-1; i++) {
+            ret += '../'
+        }
+    }
+    return ret;
+}
+
 export function detectIndent(str, count, indent?): string {
     let stripIndent = function(str: string) {
         const match = str.match(/^[ \t]*(?=\S)/gm);

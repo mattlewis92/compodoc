@@ -8,6 +8,7 @@ import marked from 'marked';
 const glob: any = require('glob');
 
 import { logger } from '../logger';
+import { depth, rootWithDepth } from '../utilities';
 import { HtmlEngine } from './engines/html.engine';
 import { MarkdownEngine } from './engines/markdown.engine';
 import { FileEngine } from './engines/file.engine';
@@ -44,6 +45,7 @@ export namespace Application {
         .option('-p, --tsconfig [config]', 'A tsconfig.json file')
         .option('-d, --output [folder]', 'Where to store the generated documentation (default: ./documentation)')
         .option('-b, --base [base]', 'Base reference of html tag <base>', '/')
+        .option('--disable-base-tag', 'Disable html base tag')
         .option('-y, --extTheme [file]', 'External styling theme file')
         .option('-h, --theme [theme]', 'Choose one of available themes, default is \'gitbook\' (laravel, original, postmark, readthedocs, stripe, vagrant)')
         .option('-n, --name [name]', 'Title documentation', defaultTitle)
@@ -85,7 +87,9 @@ export namespace Application {
 
     $configuration.mainData.documentationMainName = program.name; //default commander value
 
-    $configuration.mainData.base = program.base;
+    if (!program.disableBaseTag) {
+        $configuration.mainData.base = program.base;
+    }
 
     let processPackageJson = () => {
         logger.info('Searching package.json file');
@@ -396,15 +400,18 @@ export namespace Application {
             loop = () => {
                 if( i <= len-1) {
                     logger.info('Process page', pages[i].name);
+                    let finalPath = defaultFolder,
+                        pageDepth;
+                    if(defaultFolder.lastIndexOf('/') === -1) {
+                        finalPath += '/';
+                    }
+                    if (pages[i].path) {
+                        finalPath += pages[i].path + '/';
+                    }
+                    finalPath += pages[i].name + '.html';
+                    pageDepth = depth(finalPath)-1;
+                    pages[i].root = rootWithDepth(pageDepth);
                     $htmlengine.render($configuration.mainData, pages[i]).then((htmlData) => {
-                        let finalPath = defaultFolder;
-                        if(defaultFolder.lastIndexOf('/') === -1) {
-                            finalPath += '/';
-                        }
-                        if (pages[i].path) {
-                            finalPath += pages[i].path + '/';
-                        }
-                        finalPath += pages[i].name + '.html';
                         $searchEngine.indexPage({
                             infos: pages[i],
                             rawData: htmlData,

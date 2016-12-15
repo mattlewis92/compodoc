@@ -59,6 +59,7 @@ Component page             |  Search page
   - [Styling the documentation](#styling-hte-documentation)
   - [Documentation of each component](#documentation-of-each-component)
   - [Syntax highlighting in markdown files](#syntax-highlighting-in-markdown-files)
+- [Remark while not serving documentation](#remark-while-not-serving-documentation)
 - [Remark for comments](#remark-for-comments)
 - [Remark for routes](#remark-for-routes)
 - [Why this tool ?](#why-this-tool-)
@@ -92,6 +93,7 @@ Options:
   -p, --tsconfig [config]   A tsconfig.json file
   -d, --output [folder]     Where to store the generated documentation
   -b, --base [base]         Base reference of html tag <base>
+  -disable-base-tag         Disable html base tag
   -y, --extTheme [file]     External styling theme
   -h, --theme [theme]       Choose one of available themes, default is 'gitbook' (laravel, original, postmark, readthedocs, stripe, vagrant)
   -n, --name [name]         Title documentation
@@ -205,6 +207,10 @@ Compodoc search for a default README.md file inside the root folder of each comp
 ```
 
 The live demo as a component documented in that way : [TodoMVC Angular Compodoc demo / todo component](https://compodoc.github.io/compodoc-demo-todomvc-angular2/components/TodoComponent.html)
+
+## Remark while not serving documentation
+
+This use-case can be handled using --disable-base-tag flag. But the search feature will be broken, as it needs to load the index.json file, and will fail without http or https context.
 
 ## Remark for comments
 
