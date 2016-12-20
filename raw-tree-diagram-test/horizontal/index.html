@@ -2,19 +2,19 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
         <link type="text/css" rel="stylesheet" href="style.css">
-        <script type="text/javascript" src="d3/d3.js"></script>
+        <script type="text/javascript" src="d3/d3.v3.min.js"></script>
         <script type="text/javascript" src="d3/d3.layout.js"></script>
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
         <style type="text/css">
-
-            .node circle {
-                cursor: pointer;
-                fill: #fff;
-                stroke: steelblue;
-                stroke-width: 1.5px;
-            }
-
             .node text {
                 font-size: 11px;
+            }
+
+            .node .icon {
+                font-size: 15px;
+            }
+            .node .icon.has-children {
+                cursor: pointer;
             }
 
             path.link {
@@ -26,9 +26,7 @@
         </style>
     </head>
     <body>
-        <div id="body">
-            
-        </div>
+        <div id="body"></div>
         <script type="text/javascript">
 
             var m = [
@@ -49,7 +47,7 @@
 
             d3.json("flare.json", function(json) {
                 root = json;
-                root.x0 = h / 2;
+                root.x0 = 0;
                 root.y0 = 0;
 
                 function toggleAll(d) {
@@ -59,20 +57,21 @@
                     }
                 }
 
-                // Initialize the display to show a few nodes.
-                root.children.forEach(toggleAll);
-                toggle(root.children[1]);
-                toggle(root.children[1].children[2]);
-                toggle(root.children[9]);
-                toggle(root.children[9].children[0]);
-
+                /*if (root.children.length > 1) {
+                    // Initialize the display to show a few nodes.
+                    root.children.forEach(toggleAll);
+                    toggle(root.children[1]);
+                    if (root.children[1].children) {
+                        toggle(root.children[1].children[2]);
+                        toggle(root.children[9]);
+                        toggle(root.children[9].children[0]);
+                    }
+                }*/
                 update(root);
             });
 
             function update(source) {
-                var duration = d3.event && d3.event.altKey
-                    ? 5000
-                    : 500;
+                var duration = 750;
 
                 // Compute the new tree layout.
                 var nodes = tree.nodes(root).reverse();
@@ -81,6 +80,8 @@
                 nodes.forEach(function(d) {
                     d.y = d.depth * 180;
                 });
+
+                nodes[nodes.length - 1].x = 38;
 
                 // Update the nodes…
                 var node = vis.selectAll("g.node").data(nodes, function(d) {
@@ -95,20 +96,44 @@
                     update(d);
                 });
 
+                nodeEnter.append('svg:text')
+                .attr("y", function(d) {
+                    return 5;
+                })
+                .attr("x", function(d) {
+                    return 0;
+                })
+                .attr('font-family', 'FontAwesome')
+                .attr('class', function(d) {
+                    return d.children || d._children
+                        ? "icon has-children"
+                        : "icon";
+                })
+                .attr('font-size', function(d) {
+                    return '15px'
+                }).text(function(d) {
+                    return '\uf126'
+                });
+
+                /*
                 nodeEnter.append("svg:circle").attr("r", 1e-6).style("fill", function(d) {
                     return d._children
                         ? "lightsteelblue"
                         : "#fff";
                 });
+                */
 
-                nodeEnter.append("svg:text").attr("x", function(d) {
-                    return d.children || d._children
-                        ? -10
-                        : 10;
-                }).attr("dy", ".35em").attr("text-anchor", function(d) {
-                    return d.children || d._children
-                        ? "end"
-                        : "start";
+                nodeEnter.append("svg:text")
+                .attr("x", function(d) {
+                    return 0;
+                })
+                .attr("y", function(d) {
+                    return 15;
+                })
+                .attr("dy", ".35em")
+                .attr('class', 'text')
+                .attr("text-anchor", function(d) {
+                    return "start";
                 }).text(function(d) {
                     return d.name;
                 }).style("fill-opacity", 1e-6);
@@ -124,7 +149,7 @@
                         : "#fff";
                 });
 
-                nodeUpdate.select("text").style("fill-opacity", 1);
+                nodeUpdate.selectAll("text").style("fill-opacity", 1);
 
                 // Transition exiting nodes to the parent's new position.
                 var nodeExit = node.exit().transition().duration(duration).attr("transform", function(d) {
