@@ -1,32 +1,33 @@
 {
-    "name": "flare",
+    "name": "<root>",
     "children": [{
         "name": "/analytics",
+        "component": "AnalyticsComponent",
         "children": [{
-            "name": "cluster"
+            "name": "cluster",
+            "component": "ClusterComponent"
         }, {
-            "name": "graph"
+            "name": "graph",
+            "component": "GraphComponent"
         }, {
-            "name": "optimization"
+            "name": "optimization",
+            "component": "OptimizationComponent"
         }]
-
     }, {
-        "name": "/animate"
+        "name": "/animate",
+        "component": "OptimizationComponent",
+        "children": [{
+            "name": "cluster",
+            "component": "ClusterComponent"
+        }, {
+            "name": "graph",
+            "component": "GraphComponent"
+        }, {
+            "name": "optimization",
+            "component": "OptimizationComponent"
+        }]
     }, {
-        "name": "data"
-    }, {
-        "name": "display"
-    }, {
-        "name": "flex"
-    }, {
-        "name": "physics"
-    }, {
-        "name": "query"
-    }, {
-        "name": "scale"
-    }, {
-        "name": "util"
-    }, {
-        "name": "vis"
+        "name": "data",
+        "component": "OptimizationComponent"
     }]
 }
