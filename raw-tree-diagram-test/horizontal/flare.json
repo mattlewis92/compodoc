@@ -1,33 +1,30 @@
 {
+    "className": "AppModule",
     "name": "<root>",
+    "kind": "ngModule",
     "children": [{
-        "name": "/analytics",
-        "component": "AnalyticsComponent",
-        "children": [{
-            "name": "cluster",
-            "component": "ClusterComponent"
-        }, {
-            "name": "graph",
-            "component": "GraphComponent"
-        }, {
-            "name": "optimization",
-            "component": "OptimizationComponent"
-        }]
+        "name": "/home",
+        "className": "HomeComponent",
+        "kind": "component"
     }, {
-        "name": "/animate",
-        "component": "OptimizationComponent",
+        "name": "/about",
+        "kind": "component",
+        "className": "AboutComponent",
         "children": [{
-            "name": "cluster",
-            "component": "ClusterComponent"
+            "name": "/todomvc",
+            "className": "TodoMVCComponent"
         }, {
-            "name": "graph",
-            "component": "GraphComponent"
+            "name": "/compodoc",
+            "className": "CompodocComponent"
         }, {
-            "name": "optimization",
-            "component": "OptimizationComponent"
+            "name": "/optimization",
+            "className": "OptimizationComponent"
+        }, {
+            "name": "/optimization",
+            "className": "OptimizationComponent"
+        }, {
+            "name": "/optimization",
+            "className": "OptimizationComponent"
         }]
-    }, {
-        "name": "data",
-        "component": "OptimizationComponent"
     }]
 }
