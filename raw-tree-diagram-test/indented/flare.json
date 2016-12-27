@@ -1,0 +1,30 @@
+{
+    "className": "AppModule",
+    "name": "<root>",
+    "kind": "ngModule",
+    "children": [{
+        "name": "/home",
+        "className": "HomeComponent",
+        "kind": "component"
+    }, {
+        "name": "/about",
+        "kind": "component",
+        "className": "AboutComponent",
+        "children": [{
+            "name": "/todomvc",
+            "className": "TodoMVCComponent"
+        }, {
+            "name": "/compodoc",
+            "className": "CompodocComponent"
+        }, {
+            "name": "/optimization",
+            "className": "OptimizationComponent"
+        }, {
+            "name": "/optimization",
+            "className": "OptimizationComponent"
+        }, {
+            "name": "/optimization",
+            "className": "OptimizationComponent"
+        }]
+    }]
+}
