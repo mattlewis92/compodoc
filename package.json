@@ -10,7 +10,7 @@
     "build": "./node_modules/.bin/rollup -c rollup/rollup.config.js && ./node_modules/.bin/rollup -c rollup/rollup-cli.config.js",
     "changelog": "./node_modules/.bin/conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
     "start": "npm run tsc",
-    "pretest": "tsc -p test/tsconfig.json",
+    "pretest": "tsc -p test/tsconfig.json && npm run build",
     "test": "nyc mocha --opts test/mocha.opts",
     "posttest": "nyc report --reporter=json",
     "codecov": "codecov -f coverage/*.json",
