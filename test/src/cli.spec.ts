@@ -88,7 +88,7 @@ describe('CLI', () => {
         });
     });
 
-    describe('when generation with d flag', () => {
+    describe.only('when generation with d flag', () => {
 
         let stdoutString = null;
         before(function (done) {
@@ -137,6 +137,11 @@ describe('CLI', () => {
         it('should have generated search index json', () => {
             const isIndexExists = exists(`${tmp.name}/search_index.json`);
             expect(isIndexExists).to.be.true;
+        });
+
+        it('should have no base tag by default', () => {
+            const index = read(`${tmp.name}/index.html`);
+            expect(index).not.to.contain('<base href="');
         });
     });
 
